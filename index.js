@@ -23,17 +23,6 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/user', userRouter)
 
-app.get('/', (req, res, next) => {
-    insertUser()
-    res.render('index')
-})
-
-app.post('/', (req, res, next) => {
-    res.render('index', {
-        params: req.body
-    })
-})
-
 //404 
 app.use((req, res, next) => {
     res.status(404).send('<h3>Página não encontrada<h3>')

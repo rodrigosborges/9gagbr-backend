@@ -3,15 +3,19 @@ const rootDir = require('../util/rootDir')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const path = require('path')
-
+const {insertUser, findUser, updateUser} = require('../util/database.js')
 router.use(bodyParser.urlencoded({extended:false}))
 
 router.get('/', (req, res, next) => {
     res.sendFile(path.join(rootDir,'src','views','user','form.html'))
 })
 
-router.post('/', (req, res, next) => {
-    res.send(req.body)
+router.post('/store', (req, res, next) => {
+    insertUser(req.body, res)
+})
+
+router.get('/update', (req, res, next) => {
+    updateUser(20, res);
 })
 
 router.put('/:id', (req, res, next) => {

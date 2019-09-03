@@ -1,13 +1,13 @@
 const Sequelize = require('sequelize');
 
 //sqlite
-const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: './database.sqlite'
-});
+// const sequelize = new Sequelize({
+//     dialect: 'sqlite',
+//     storage: './database.sqlite'
+// });
 
 //mysql
-// const sequelize = new Sequelize('mysql://root:@localhost:3306/9gagbr');
+ const sequelize = new Sequelize('mysql://root:@localhost:3306/teste');
 
 const User = sequelize.define('users', 
     {
@@ -30,7 +30,12 @@ const Category = sequelize.define('categories', {
     name: {
         type: Sequelize.STRING(30),
         allowNull: false,
+    },
+    path: {
+        type: Sequelize.STRING(100),
+        allowNull: false
     }
+
 })
 
 const Post = sequelize.define('posts', 
@@ -104,9 +109,34 @@ const Comment = sequelize.define('comments',
 )
 
 //atualiza os models com o banco
-sequelize.sync()
+//sequelize.sync()
 
-insertUser = () => {
+exports.insertUser = (data, res) => {
+    User.create(data).then(() => {
+        res.json({
+            message: 'Usuário cadastrado com sucesso'
+        })
+    }).catch((e) => {
+        res.json({
+            message: 'Erro no servidor'
+        })
+    })
 }
 
-module.exports = {insertUser}
+exports.updateUser = (data, res) =>  {
+    User.findByPk(data).then(() => {
+       User.update({ name: "novo nome", email: "novo email", password: "12345" },  { where: { id: data }})
+    }).then(() => {
+        res.json({ message: 'Usuário alterado com sucesso' })
+    }).catch((e) => {
+        res.json({
+            message: 'Erro no servidor'
+        })
+    })
+}
+
+exports.deleteUser = (data, res) => {
+    User.findByPk(data).then(() => {
+        User.destroy({ where: {id: data} });
+    })
+}
