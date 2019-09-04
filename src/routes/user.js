@@ -1,9 +1,10 @@
 const express = require('express')
 const rootDir = require('../util/rootDir')
 const bodyParser = require('body-parser')
+const bcrypt = require('bcrypt');
 const router = express.Router()
 const path = require('path')
-const {insertUser, findUser, updateUser} = require('../util/database.js')
+const {insertUser, deleteUser, updateUser} = require('../util/database.js')
 router.use(bodyParser.urlencoded({extended:false}))
 
 router.get('/', (req, res, next) => {
@@ -11,11 +12,17 @@ router.get('/', (req, res, next) => {
 })
 
 router.post('/store', (req, res, next) => {
-    insertUser(req.body, res)
+     bcrypt.hash(req.body.password, 12).then(function(hashedPassword) {
+         insertUser(req.body.name, req.body.email, hashedPassword, res)
+     })  
 })
 
 router.get('/update', (req, res, next) => {
-    updateUser(20, res);
+    updateUser(20, res)
+})
+
+router.get('/delete', (req, res, next) => {
+    deleteUser(2, res)
 })
 
 router.put('/:id', (req, res, next) => {

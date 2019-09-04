@@ -7,7 +7,7 @@ const Sequelize = require('sequelize');
 // });
 
 //mysql
- const sequelize = new Sequelize('mysql://root:@localhost:3306/teste');
+ const sequelize = new Sequelize('mysql://root:@localhost:3306/9gagbr');
 
 const User = sequelize.define('users', 
     {
@@ -116,7 +116,7 @@ exports.insertUser = (data, res) => {
         res.json({
             message: 'Usuário cadastrado com sucesso'
         })
-    }).catch((e) => {
+    }).error((e) => {
         res.json({
             message: 'Erro no servidor'
         })
@@ -137,6 +137,6 @@ exports.updateUser = (data, res) =>  {
 
 exports.deleteUser = (data, res) => {
     User.findByPk(data).then(() => {
-        User.destroy({ where: {id: data} });
+        User.destroy({ where: {id: data} })
     })
 }
