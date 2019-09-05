@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-
+const bcrypt = require('bcrypt');
 //sqlite
 // const sequelize = new Sequelize({
 //     dialect: 'sqlite',
@@ -22,8 +22,12 @@ const User = sequelize.define('users',
         email: {
             type: Sequelize.STRING(100),
             allowNull: false
+        },
+    },{
+        hooks: {
+          beforeCreate: hashPassword
         }
-    }, 
+    } 
 )
 
 const Category = sequelize.define('categories', {
@@ -108,9 +112,14 @@ const Comment = sequelize.define('comments',
     }, 
 )
 
+async function hashPassword(user, options) {
+    user.password = await bcrypt.hash(user.password, 12);
+}
+
 //atualiza os models com o banco
 //sequelize.sync()
 
+// USER
 exports.insertUser = (data, res) => {
     User.create(data).then(() => {
         res.json({
@@ -140,3 +149,8 @@ exports.deleteUser = (data, res) => {
         User.destroy({ where: {id: data} })
     })
 }
+
+//Category
+exports.insertCategory = () => {}
+exports.updateCategory = () => {}
+exports.deleteCategory = () => {}

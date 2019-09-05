@@ -1,7 +1,6 @@
 const express = require('express')
 const rootDir = require('../util/rootDir')
 const bodyParser = require('body-parser')
-const bcrypt = require('bcrypt');
 const router = express.Router()
 const path = require('path')
 const {insertUser, deleteUser, updateUser} = require('../util/database.js')
@@ -11,10 +10,8 @@ router.get('/', (req, res, next) => {
     res.sendFile(path.join(rootDir,'src','views','user','form.html'))
 })
 
-router.post('/store', (req, res, next) => {
-     bcrypt.hash(req.body.password, 12).then(function(hashedPassword) {
-         insertUser(req.body.name, req.body.email, hashedPassword, res)
-     })  
+router.post('/store', (req, res, next) => {    
+    insertUser(req.body, res)  
 })
 
 router.get('/update', (req, res, next) => {
