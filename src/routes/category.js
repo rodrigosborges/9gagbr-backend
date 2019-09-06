@@ -3,7 +3,7 @@ const rootDir = require('../util/rootDir')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const path = require('path')
-const { insertCategory } = require('../util/database.js')
+const { insertCategory, updateCategory, deleteCategory } = require('../util/database.js')
 router.use(bodyParser.urlencoded({extended:false}))
 const fs = require('fs');
 
@@ -11,40 +11,30 @@ router.get('/', (req, res, next) => {
     res.sendFile(path.join(rootDir,'src','views','category','form.html'))
 })
 
-router.post('/store', (req, res, next) => {    
+router.post('/store', (req, res, next) => {   
     fs.readFile(req.body.path, function (err, data) {
-
-        var imageName = req.body.path
-        
-        /// If there's an error
+        var imageName = req.body.name
         if(!imageName){
-
             console.log("There was an error")
             res.redirect("/");
             res.end();
-
         } else {
-
-          var newPath = __dirname + "/storage/category/" + imageName;
-
-          /// write file to uploads/fullsize folder
-          fs.writeFile(newPath, data, function (err) {
-
-            /// let's see it
-            res.redirect("/storage/category/" + imageName);
-
+            var newPath = path.join(__dirname, '../storage/category/'+imageName)
+            fs.writeFile(newPath, data, function (err) {
+            var formdata = `{"name": "${req.body.name}", "path": "${req.body.path}"}` 
+            insertCategory(JSON.parse(formdata),res)
+            console.log('deu certo')
           });
         }
     });
-    //insertCategory(req.body, res)
 })
 
 router.get('/update', (req, res, next) => {
-    
+    updateCategory(7, res)
 })
 
 router.get('/delete', (req, res, next) => {
-    
+    deleteCategory(6, res)
 })
 
 router.put('/:id', (req, res, next) => {

@@ -158,5 +158,23 @@ exports.insertCategory = (data, res) => {
         res.json({ message: 'Erro no servidor' })
     })
 }
-exports.updateCategory = () => {}
-exports.deleteCategory = () => {}
+
+exports.updateCategory = (data, res) => {
+    Category.findByPk(data).then(() => {
+        Category.update({ name: "categoria nova", path: "image.jpg" },  { where: { id: data }})
+    }).then(() => {
+        res.json({ message: 'Categoria atualizada com sucesso' })
+    }).catch((e) => {
+        res.json({ message: 'Erro no servidor' })
+    })
+}
+
+exports.deleteCategory = (data, res) => {
+    Category.findByPk(data).then(() => {
+        Category.destroy({ where: { id: data } })
+    }).then(() => {
+        res.json({ message: 'Categoria deletada com sucesso' })
+    }).catch((e) => {
+        res.json({ message: 'Erro no servidor' })
+    })
+}
