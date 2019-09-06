@@ -125,7 +125,7 @@ exports.insertUser = (data, res) => {
         res.json({
             message: 'Usuário cadastrado com sucesso'
         })
-    }).error((e) => {
+    }).catch((e) => {
         res.json({
             message: 'Erro no servidor'
         })
@@ -151,6 +151,12 @@ exports.deleteUser = (data, res) => {
 }
 
 //Category
-exports.insertCategory = () => {}
+exports.insertCategory = (data, res) => {
+    Category.create(data).then(() => {
+        res.json({ message: 'Categoria cadastrada com sucesso' })
+    }).catch((e) => {
+        res.json({ message: 'Erro no servidor' })
+    })
+}
 exports.updateCategory = () => {}
 exports.deleteCategory = () => {}

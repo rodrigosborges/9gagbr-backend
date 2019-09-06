@@ -3,8 +3,8 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const userRouter = require('./src/routes/user')
+const categoryRouter = require('./src/routes/category')
 const path = require('path')
-const {insertUser} = require('./src/util/database.js')
 
 /*
 CRUD de posts
@@ -22,6 +22,7 @@ app.use(bodyParser.urlencoded({extended:false}))
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/user', userRouter)
+app.use('/category', categoryRouter)
 
 //404 
 app.use((req, res, next) => {
