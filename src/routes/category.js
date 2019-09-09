@@ -5,28 +5,30 @@ const router = express.Router()
 const path = require('path')
 const { insertCategory, updateCategory, deleteCategory } = require('../util/database.js')
 router.use(bodyParser.urlencoded({extended:false}))
-const fs = require('fs');
+const fs = require('fs')
+const multer = require('multer')
+//const upload = multer({ dest: '../storage/category/' });
 
 router.get('/', (req, res, next) => {
     res.sendFile(path.join(rootDir,'src','views','category','form.html'))
 })
 
-router.post('/store', (req, res, next) => {   
-    fs.readFile(req.body.path, function (err, data) {
-        var imageName = req.body.name
-        if(!imageName){
-            console.log("There was an error")
-            res.redirect("/");
-            res.end();
-        } else {
-            var newPath = path.join(__dirname, '../storage/category/'+imageName)
-            fs.writeFile(newPath, data, function (err) {
-            var formdata = `{"name": "${req.body.name}", "path": "${req.body.path}"}` 
-            insertCategory(JSON.parse(formdata),res)
-            console.log('deu certo')
-          });
-        }
-    });
+var storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, path.join(__dirname, '../storage/category/'))
+    },
+    filename: (req, file, cb) => {
+    cb(null, file.fieldname + '-' + Date.now())
+    }
+});
+var upload = multer({ storage:storage })
+
+router.post('/store', upload.single('path'),(req, res, next) => {   
+    var formdata = `{"name": "${req.body.name}", "path": "${req.file.originalname.split('.')[0]}"}` 
+    if (req.file) {
+        fs.renameSync(req.file.path, req.file.destination + req.body.name+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]);
+    }
+    insertCategory(JSON.parse(formdata),res)
 })
 
 router.get('/update', (req, res, next) => {
