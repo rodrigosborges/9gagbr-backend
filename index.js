@@ -20,7 +20,8 @@ app.use(cors())
 app.set('view engine', 'ejs')
 app.set('views', 'src/views')
 
-app.use(bodyParser.urlencoded({extended:false}))
+app.use(bodyParser.urlencoded({extended:true}))
+app.use(bodyParser.json())
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/user', userRouter)
