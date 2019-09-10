@@ -6,6 +6,7 @@ const userRouter = require('./src/routes/user')
 const categoryRouter = require('./src/routes/category')
 const postRouter = require('./src/routes/post')
 const path = require('path')
+var cors = require('cors');
 
 /*
 CRUD de posts
@@ -15,7 +16,7 @@ Like
 Deslike
 Comentário
 */
-
+app.use(cors())
 app.set('view engine', 'ejs')
 app.set('views', 'src/views')
 
@@ -33,4 +34,4 @@ app.use((req, res, next) => {
 
 const server = http.createServer(app)
 
-server.listen(3000)
+server.listen(3001)

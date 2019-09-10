@@ -113,7 +113,7 @@ async function hashPassword(user, options) {
 }
 
 //atualiza os models com o banco
-//sequelize.sync()
+// sequelize.sync()
 
 // USER
 exports.insertUser = (data, res) => {
