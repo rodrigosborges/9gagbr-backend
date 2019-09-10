@@ -3,7 +3,7 @@ const rootDir = require('../util/rootDir')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const path = require('path')
-const { insertPost, updatePost } = require('../util/database.js')
+const { insertPost, updatePost, deletePost } = require('../util/database.js')
 router.use(bodyParser.urlencoded({extended:false}))
 const fs = require('fs')
 const multer = require('multer')
@@ -22,26 +22,27 @@ var storage = multer.diskStorage({
 });
 var upload = multer({ storage:storage })
 
-router.post('/store', upload.single('path'),(req, res, next) => {   
-    var formdata = `{"title": "${req.body.title}", "path": "${req.file.originalname}", "category_id": "${req.body.category_id}"}` 
-    if (req.file) {
-        fs.renameSync(req.file.path, req.file.destination +req.file.originalname.split('.')[0]+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]);
-    }
-    insertPost(JSON.parse(formdata),res)
+router.post('/', upload.single('path'),(req, res, next) => {   
+    var data = req.body
+    data['path'] = data.title+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]
+    fs.renameSync(req.file.path, req.file.destination + data['path']);
+    insertPost(data, res)
 })
 
-router.post('/update', upload.single('path'),(req, res, next) => {   
-   
-})
-
-router.put('/:id', (req, res, next) => {
+router.put('/:id', upload.single('path'),(req, res, next) => {
     if(req.body._method != "PUT")
         return next()
 
-        var data = req.body
-        data['path'] = data.title+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]
-        fs.renameSync(req.file.path, req.file.destination + data['path']);
-        updatePost(data, res)
+    var data = req.body
+    data['path'] = data.title+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]
+    fs.renameSync(req.file.path, req.file.destination + data['path']);
+    updatePost(req.params.id, data, res)
+
 })
+
+router.delete('/:id', (req, res) => {
+    deletePost(req.params.id,res)
+})
+
 
 module.exports = router

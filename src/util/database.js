@@ -212,3 +212,25 @@ exports.deletePost = (id, res) => {
         })
     })
 }
+
+//Reaction
+exports.insertReaction = (data, res) => {
+    if(data.remove){
+        Reaction.findByPk(data.id).then(() => {
+            Reaction.destroy({ where: {id: data.id} }).then(() => {
+                res.json({ message: 'Reação deletada com sucesso' })
+            }).catch(() => {
+                res.json({ message: 'Erro no servidor' })
+            })
+        })
+    }else{
+        Reaction.create(data).then(() => {
+            res.json({ message: 'Reaction cadastrada com sucesso' })
+        }).catch((e) => {
+            res.json({ message: 'Erro no servidor' })
+        })
+    }
+
+
+    
+}
