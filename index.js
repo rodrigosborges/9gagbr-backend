@@ -4,6 +4,7 @@ const app = express()
 const bodyParser = require('body-parser')
 const userRouter = require('./src/routes/user')
 const categoryRouter = require('./src/routes/category')
+const postRouter = require('./src/routes/post')
 const path = require('path')
 
 /*
@@ -23,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/user', userRouter)
 app.use('/category', categoryRouter)
+app.use('/post', postRouter)
 
 //404 
 app.use((req, res, next) => {

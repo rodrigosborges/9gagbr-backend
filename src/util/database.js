@@ -52,10 +52,6 @@ const Post = sequelize.define('posts',
             type: Sequelize.STRING(100),
             allowNull: false
         },
-        gif: {
-            type: Sequelize.BOOLEAN,
-            allowNull: false
-        },
         category_id: {
             type: Sequelize.INTEGER,
             references: {
@@ -132,9 +128,9 @@ exports.insertUser = (data, res) => {
     })
 }
 
-exports.updateUser = (data, res) =>  {
-    User.findByPk(data).then(() => {
-       User.update({ name: "novo nome", email: "novo email", password: "12345" },  { where: { id: data }})
+exports.updateUser = (id, data, res) =>  {
+    User.findByPk(id).then(() => {
+       User.update(data,  { where: { id: id }})
     }).then(() => {
         res.json({ message: 'Usuário alterado com sucesso' })
     }).catch((e) => {
@@ -144,9 +140,9 @@ exports.updateUser = (data, res) =>  {
     })
 }
 
-exports.deleteUser = (data, res) => {
-    User.findByPk(data).then(() => {
-        User.destroy({ where: {id: data} })
+exports.deleteUser = (id, res) => {
+    User.findByPk(id).then(() => {
+        User.destroy({ where: {id: id} })
     })
 }
 
@@ -159,22 +155,60 @@ exports.insertCategory = (data, res) => {
     })
 }
 
-exports.updateCategory = (data, res) => {
-    Category.findByPk(data).then(() => {
-        Category.update({ name: "categoria nova", path: "image.jpg" },  { where: { id: data }})
+exports.updateCategory = (id, data, res) => {
+    Category.findByPk(id).then(() => {
+        Category.update(data, {where: { id: id }}).then(() => {
+            res.json({ message: 'Categoria atualizado com sucesso' })
+        }).catch((e) => {
+            res.json({ message:'Erro no servidor' })
+        })
+    })
+}
+
+exports.deleteCategory = (id, res) => {
+    Category.findByPk(id).then(() => {
+        Category.destroy({ where: { id: id } })
     }).then(() => {
-        res.json({ message: 'Categoria atualizada com sucesso' })
+        res.json({ message: 'Categoria deletada com sucesso' })
     }).catch((e) => {
         res.json({ message: 'Erro no servidor' })
     })
 }
 
-exports.deleteCategory = (data, res) => {
-    Category.findByPk(data).then(() => {
-        Category.destroy({ where: { id: data } })
-    }).then(() => {
-        res.json({ message: 'Categoria deletada com sucesso' })
+exports.findCategory = (data, res) => {
+    Category.findAll().then((category) => {
+        category.forEach(function(name){
+            console.log(name.dataValues.name)
+          });
+    })
+}
+
+
+//Post
+exports.insertPost = (data, res) => {
+    Post.create(data).then(() => {
+        res.json({ message: 'Post cadastrado com sucesso' })
     }).catch((e) => {
         res.json({ message: 'Erro no servidor' })
+    })
+}
+
+exports.updatePost = (id, data, res) => {
+    Post.findByPk(id).then(() => {
+        Post.update(data, {where: { id: id }}).then(() => {
+            res.json({ message: 'Post atualizado com sucesso' })
+        }).catch((e) => {
+            res.json({ message:'Erro no servidor' })
+        })
+    })
+}
+
+exports.deletePost = (id, res) => {
+    Post.findByPk(id).then(() => {
+        Post.destroy( {where: { id: id }}).then(() => {
+            res.json({ message: 'Post deletado com sucesso' })
+        }).catch((e) => {
+            res.json({ message:'Erro no servidor' })
+        })
     })
 }
