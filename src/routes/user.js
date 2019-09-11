@@ -18,13 +18,10 @@ router.put('/:id', (req, res, next) => {
     if(req.body._method != "PUT")
         return next()
         
-    updateUser(req.params.id, res)
+    updateUser(req.params.id,req.body,res)
 })
 
-router.delete('/:id', (req, res, next) => {
-    if(req.body._method != "DELETE")
-        return next()
-    
+router.delete('/:id', (req, res) => {    
     deleteUser(req.params.id, res)
 })
 

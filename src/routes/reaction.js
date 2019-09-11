@@ -8,3 +8,5 @@ router.use(bodyParser.urlencoded({extended:false}))
 router.post('/', (req, res, next) => {   
     insertReaction(req.body, res)
 })
+
+module.exports = router

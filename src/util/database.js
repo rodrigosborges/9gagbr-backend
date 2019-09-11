@@ -25,7 +25,8 @@ const User = sequelize.define('users',
         },
     },{
         hooks: {
-          beforeCreate: hashPassword
+          beforeCreate: hashPassword,
+          beforeUpdate: hashPassword
         }
     } 
 )
@@ -118,31 +119,29 @@ async function hashPassword(user, options) {
 // USER
 exports.insertUser = (data, res) => {
     User.create(data).then(() => {
-        res.json({
-            message: 'Usuário cadastrado com sucesso'
-        })
+        res.json({ message: 'Usuario cadastrada com sucesso' })
     }).catch((e) => {
-        res.json({
-            message: 'Erro no servidor'
-        })
+        res.json({ message: 'Erro no servidor' })
     })
 }
 
-exports.updateUser = (id, data, res) =>  {
+exports.updateUser = (id, data, res) => {
     User.findByPk(id).then(() => {
-       User.update(data,  { where: { id: id }})
-    }).then(() => {
-        res.json({ message: 'Usuário alterado com sucesso' })
-    }).catch((e) => {
-        res.json({
-            message: 'Erro no servidor'
+        User.update(data, {where: { id: id }}).then(() => {
+            res.json({ message: 'Usuario atualizado com sucesso' })
+        }).catch((e) => {
+            res.json({ message:'Erro no servidor' })
         })
     })
 }
 
 exports.deleteUser = (id, res) => {
     User.findByPk(id).then(() => {
-        User.destroy({ where: {id: id} })
+        User.destroy({ where: { id: id } })
+    }).then(() => {
+        res.json({ message: 'Usuario deletada com sucesso' })
+    }).catch((e) => {
+        res.json({ message: 'Erro no servidor' })
     })
 }
 
@@ -229,8 +228,34 @@ exports.insertReaction = (data, res) => {
         }).catch((e) => {
             res.json({ message: 'Erro no servidor' })
         })
-    }
+    } 
+}
 
+//Comment
+exports.insertComment = (data, res) => {
+    Comment.create(data).then(() => {
+        res.json({ message: 'Comentario inserido com sucesso' })
+    }).catch((e) => {
+        res.json({ message: 'Erro no servidor' })
+    })
+}
 
-    
+exports.updateComment = (id, data, res) => {
+    Comment.findByPk(id).then(() => {
+        Comment.update(data, { where: { id: id } }).then(() => {
+            res.json({ message: 'Comentario atualizado com sucesso' })
+        }).catch((e) => {
+            res.json({ message: 'Erro no servidor' })
+        })
+    })
+}
+
+exports.deleteComment = (id, res) => {
+    Comment.findByPk(id).then(() => {
+        Comment.destroy({ where: { id: id } }).then(() => {
+            res.json({ message: 'Comentario deletado com sucesso' })
+        }).catch((e) => {
+            res.json({ message: 'Erro no servidor' })
+        })
+    })
 }
