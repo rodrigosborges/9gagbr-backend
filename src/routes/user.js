@@ -3,7 +3,7 @@ const rootDir = require('../util/rootDir')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const path = require('path')
-const {insertUser, deleteUser, updateUser} = require('../util/database.js')
+const {insertUser, deleteUser, updateUser, listUser} = require('../util/database.js')
 router.use(bodyParser.urlencoded({extended:false}))
 
 router.get('/', (req, res, next) => {
@@ -24,6 +24,7 @@ router.put('/:id', (req, res, next) => {
 router.delete('/:id', (req, res) => {    
     deleteUser(req.params.id, res)
 })
+
 
 
 module.exports = router

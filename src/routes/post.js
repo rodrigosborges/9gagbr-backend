@@ -3,7 +3,7 @@ const rootDir = require('../util/rootDir')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const path = require('path')
-const { insertPost, updatePost, deletePost } = require('../util/database.js')
+const { insertPost, updatePost, deletePost, listPost } = require('../util/database.js')
 router.use(bodyParser.urlencoded({extended:false}))
 const fs = require('fs')
 const multer = require('multer')
@@ -37,7 +37,10 @@ router.put('/:id', upload.single('path'),(req, res, next) => {
     data['path'] = data.title+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]
     fs.renameSync(req.file.path, req.file.destination + data['path']);
     updatePost(req.params.id, data, res)
+})
 
+router.get('/list', (req, res) => {
+    listPost(res);
 })
 
 router.delete('/:id', (req, res) => {

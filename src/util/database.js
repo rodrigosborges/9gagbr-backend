@@ -114,7 +114,7 @@ async function hashPassword(user, options) {
 }
 
 //atualiza os models com o banco
-// sequelize.sync()
+//sequelize.sync()
 
 // USER
 exports.insertUser = (data, res) => {
@@ -164,6 +164,14 @@ exports.updateCategory = (id, data, res) => {
     })
 }
 
+exports.listCategory = (res) => {
+    Category.findAll().then(function(categories){
+        res.send({data:categories});
+      }).catch(function(err){
+        console.log('Oops! something went wrong, : ', err);
+      });
+}
+
 exports.deleteCategory = (id, res) => {
     Category.findByPk(id).then(() => {
         Category.destroy({ where: { id: id } })
@@ -171,14 +179,6 @@ exports.deleteCategory = (id, res) => {
         res.json({ message: 'Categoria deletada com sucesso' })
     }).catch((e) => {
         res.json({ message: 'Erro no servidor' })
-    })
-}
-
-exports.findCategory = (data, res) => {
-    Category.findAll().then((category) => {
-        category.forEach(function(name){
-            console.log(name.dataValues.name)
-          });
     })
 }
 
@@ -200,6 +200,14 @@ exports.updatePost = (id, data, res) => {
             res.json({ message:'Erro no servidor' })
         })
     })
+}
+
+exports.listPost = (res) => {
+    Post.findAll().then(function(posts){
+        res.send({data:posts});
+      }).catch(function(err){
+        console.log('Oops! something went wrong, : ', err);
+      });
 }
 
 exports.deletePost = (id, res) => {

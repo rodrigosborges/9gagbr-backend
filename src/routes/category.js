@@ -3,7 +3,7 @@ const rootDir = require('../util/rootDir')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const path = require('path')
-const { insertCategory, updateCategory, deleteCategory, findCategory } = require('../util/database.js')
+const { insertCategory, updateCategory, deleteCategory, listCategory } = require('../util/database.js')
 router.use(bodyParser.urlencoded({extended:false}))
 const fs = require('fs')
 const multer = require('multer')
@@ -38,6 +38,10 @@ router.put('/:id', upload.single('path'),(req, res, next) => {
     fs.renameSync(req.file.path, req.file.destination + data['path']);
     updateCategory(req.params.id, data, res)
 
+})
+
+router.get('/list', (req, res) => {
+    listCategory(res)
 })
 
 router.delete('/:id', (req, res) => {
