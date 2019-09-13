@@ -3,11 +3,14 @@ const bcrypt = require('bcrypt');
 //sqlite
 // const sequelize = new Sequelize({
 //     dialect: 'sqlite',
-//     storage: './database.sqlite'
+//     storage: './src/util/database.sqlite3',
+//     dialectOptions: {
+//         "timezone": "Europe/Warsaw"
+//     }
 // });
 
 //mysql
- const sequelize = new Sequelize('mysql://root:@localhost:3306/9gagbr');
+const sequelize = new Sequelize('mysql://root:@localhost:3306/9gagbr');
 
 const User = sequelize.define('users', 
     {
@@ -55,10 +58,7 @@ const Post = sequelize.define('posts',
         },
         category_id: {
             type: Sequelize.INTEGER,
-            references: {
-              model: Category,
-              key: 'id'
-            }
+            allowNull: false
         },
     }, 
 )
@@ -78,10 +78,7 @@ const Reaction = sequelize.define('reactions',
         },
         user_id: {
             type: Sequelize.INTEGER,
-            references: {
-              model: User,
-              key: 'id'
-            }
+            allowNull: false,
         }
     }, 
 )
@@ -101,20 +98,35 @@ const Comment = sequelize.define('comments',
         },
         user_id: {
             type: Sequelize.INTEGER,
-            references: {
-              model: User,
-              key: 'id'
-            }
+            allowNull: false,
         }
     }, 
 )
+
+Reaction.belongsTo(User, {
+    as: 'user',
+    foreignKey: 'user_id',
+    constraints: false
+})
+
+Comment.belongsTo(User, {
+    as: 'user',
+    foreignKey: 'user_id',
+    constraints: false
+})
+
+Post.belongsTo(Category, {
+    as: 'category',
+    foreignKey: 'category_id',
+    constraints: false
+})
 
 async function hashPassword(user, options) {
     user.password = await bcrypt.hash(user.password, 12);
 }
 
 //atualiza os models com o banco
-//sequelize.sync()
+// sequelize.sync()
 
 // USER
 exports.insertUser = (data, res) => {
@@ -182,7 +194,6 @@ exports.deleteCategory = (id, res) => {
     })
 }
 
-
 //Post
 exports.insertPost = (data, res) => {
     Post.create(data).then(() => {
@@ -203,7 +214,12 @@ exports.updatePost = (id, data, res) => {
 }
 
 exports.listPost = (res) => {
-    Post.findAll().then(function(posts){
+    Post.findAll({
+        include: [
+            { model: Category, as: 'category'}
+        ]
+    }).then(function(posts){
+        console.log(posts)
         res.send({data:posts});
       }).catch(function(err){
         console.log('Oops! something went wrong, : ', err);

@@ -9,7 +9,7 @@ const fs = require('fs')
 const multer = require('multer')
 
 router.get('/', (req, res, next) => {
-    res.sendFile(path.join(rootDir,'src','views','post','form.html'))
+    listPost(res);
 })
 
 var storage = multer.diskStorage({
@@ -37,10 +37,6 @@ router.put('/:id', upload.single('path'),(req, res, next) => {
     data['path'] = data.title+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]
     fs.renameSync(req.file.path, req.file.destination + data['path']);
     updatePost(req.params.id, data, res)
-})
-
-router.get('/list', (req, res) => {
-    listPost(res);
 })
 
 router.delete('/:id', (req, res) => {
