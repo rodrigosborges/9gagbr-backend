@@ -16,12 +16,11 @@ router.post('/', (req, res, next) => {
         name: 'required',
         email: 'required|email',
         password: 'required'
-      });   
+      })  
       v.check().then((matched) => {
-        if (!matched) {
+        if (!matched) 
             res.send('Dados incorretos');
-        }
-      });
+      })
 
     insertUser(req.body, res)  
 })
@@ -29,7 +28,16 @@ router.post('/', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
     if(req.body._method != "PUT")
         return next()
-        
+
+    const v = new Validator(req.body, {
+        name: 'required',
+        email: 'required|email',
+        password: 'required'
+    })
+    v.check().then((metched) => {
+        if(!metched)
+            res.send('Dados incorretos')
+    })
     updateUser(req.params.id,req.body,res)
 })
 
