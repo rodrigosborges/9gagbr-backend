@@ -29,7 +29,7 @@ const User = sequelize.define('users',
     },{
         hooks: {
           beforeCreate: hashPassword,
-          beforeUpdate: hashPassword
+          beforeBulkUpdate: hashPasswordUpdate
         }
     } 
 )
@@ -125,6 +125,10 @@ async function hashPassword(user, options) {
     user.password = await bcrypt.hash(user.password, 12);
 }
 
+async function hashPasswordUpdate(user, option) {
+    user.attributes.password = await bcrypt.hash(user.attributes.password, 12);
+}
+
 //atualiza os models com o banco
 // sequelize.sync()
 
@@ -142,7 +146,7 @@ exports.updateUser = (id, data, res) => {
         User.update(data, {where: { id: id }}).then(() => {
             res.json({ message: 'Usuario atualizado com sucesso' })
         }).catch((e) => {
-            res.json({ message:'Erro no servidor' })
+            res.json({ message: 'Erro no servidor' })
         })
     })
 }
