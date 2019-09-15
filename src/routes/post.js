@@ -34,11 +34,13 @@ router.post('/', upload.single('path'),(req, res, next) => {
       })  
       v.check().then((matched) => {
         if (!matched || !isImage(req.file.originalname)) 
-            res.send('Dados incorretos');
+            res.send('Dados incorretos')
+        else
+        insertPost(data, res)
+        fs.renameSync(req.file.path, req.file.destination + data['path']);
       })
     
-    fs.renameSync(req.file.path, req.file.destination + data['path']);
-    insertPost(data, res)
+
 })
 
 router.put('/:id', upload.single('path'),(req, res, next) => {
@@ -54,11 +56,11 @@ router.put('/:id', upload.single('path'),(req, res, next) => {
       })  
       v.check().then((matched) => {
         if (!matched || !isImage(req.file.originalname)) 
-            res.send('Dados incorretos');
+            res.send('Dados incorretos')
+        else
+        updatePost(req.params.id, data, res)
+        fs.renameSync(req.file.path, req.file.destination + data['path']);
       })
-    
-    fs.renameSync(req.file.path, req.file.destination + data['path']);
-    updatePost(req.params.id, data, res)
 })
 
 router.get('/list', (req, res) => {

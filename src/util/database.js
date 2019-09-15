@@ -245,6 +245,7 @@ exports.insertReaction = (data, res) => {
 
 //Comment
 exports.insertComment = (data, res) => {
+    console.log(data)
     Comment.create(data).then(() => {
         res.json({ message: 'Comentario inserido com sucesso' })
     }).catch((e) => {

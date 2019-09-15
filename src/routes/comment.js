@@ -15,10 +15,12 @@ const v = new Validator(req.body, {
      })  
       v.check().then((matched) => {
         if (!matched) 
-            res.send('Dados incorretos');
+            res.send('Dados incorretos')
+        else
+            insertComment(req.body, res)
       })
     
-    insertComment(req.params.id, req.body, res)
+    
 })
 
 router.put('/:id', (req, res, next) => {
@@ -32,10 +34,12 @@ router.put('/:id', (req, res, next) => {
      })  
       v.check().then((matched) => {
         if (!matched) 
-            res.send('Dados incorretos');
+            res.send('Dados incorretos')
+        else
+           updateComment(req.params.id, req.body, res)
       })
     
-    updateComment(req.params.id, req.body, res)
+   
 
 })
 

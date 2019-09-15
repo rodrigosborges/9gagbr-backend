@@ -14,15 +14,15 @@ router.get('/', (req, res, next) => {
 router.post('/', (req, res, next) => { 
     const v = new Validator(req.body, {
         name: 'required',
-        email: 'required|email',
-        password: 'required'
+        password: 'required',
+        email: 'required|email'
       })  
       v.check().then((matched) => {
         if (!matched) 
             res.send('Dados incorretos');
-      })
-
-    insertUser(req.body, res)  
+        else   
+            insertUser(req.body, res)
+      })  
 })
 
 router.put('/:id', (req, res, next) => {
@@ -37,8 +37,10 @@ router.put('/:id', (req, res, next) => {
     v.check().then((metched) => {
         if(!metched)
             res.send('Dados incorretos')
+        else
+            updateUser(req.params.id,req.body,res)
     })
-    updateUser(req.params.id,req.body,res)
+   
 })
 
 router.delete('/:id', (req, res) => {    
