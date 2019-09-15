@@ -11,7 +11,7 @@ const isImage = require('is-image');
 const multer = require('multer')
 
 router.get('/', (req, res, next) => {
-    res.sendFile(path.join(rootDir,'src','views','post','form.html'))
+    listPost(res);
 })
 
 var storage = multer.diskStorage({
@@ -61,10 +61,6 @@ router.put('/:id', upload.single('path'),(req, res, next) => {
         updatePost(req.params.id, data, res)
         fs.renameSync(req.file.path, req.file.destination + data['path']);
       })
-})
-
-router.get('/list', (req, res) => {
-    listPost(res);
 })
 
 router.delete('/:id', (req, res) => {

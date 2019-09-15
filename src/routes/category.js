@@ -11,7 +11,7 @@ const isImage = require('is-image');
 const multer = require('multer')
 
 router.get('/', (req, res, next) => {
-    res.sendFile(path.join(rootDir,'src','views','category','form.html'))
+    listCategory(res)
 })
 
 var storage = multer.diskStorage({
@@ -62,10 +62,6 @@ router.put('/:id', upload.single('path'),(req, res, next) => {
       })
       
 
-})
-
-router.get('/list', (req, res) => {
-    listCategory(res)
 })
 
 router.delete('/:id', (req, res) => {
