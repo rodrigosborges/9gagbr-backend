@@ -181,10 +181,10 @@ exports.updateCategory = (id, data, res) => {
 }
 
 exports.listCategory = (res) => {
-    Category.findAll().then(function(categories){
+    Category.findAll().then((categories) => {
         res.send({data:categories});
-      }).catch(function(err){
-        console.log('Oops! something went wrong, : ', err);
+      }).catch((e) => {
+        res.json({ message: 'Erro no servidor' })
       });
 }
 
@@ -222,12 +222,12 @@ exports.listPost = (res) => {
         include: [
             { model: Category, as: 'category'}
         ]
-    }).then(function(posts){
+    }).then((posts) => {
         console.log(posts)
         res.send({data:posts});
-      }).catch(function(err){
-        console.log('Oops! something went wrong, : ', err);
-      });
+      }).catch((e) => {
+        res.json({ message:'Erro no servidor' })
+    });
 }
 
 exports.deletePost = (id, res) => {
@@ -257,6 +257,18 @@ exports.insertReaction = (data, res) => {
             res.json({ message: 'Erro no servidor' })
         })
     } 
+}
+
+exports.countReaction = (id, res) => {
+        Reaction.count({
+            where: {
+              post_id: id.post_id,
+            }
+        }).then(function(posts){
+            res.send({data:posts});
+          }).catch((e) => {
+            res.json({ message:'Erro no servidor' })
+        });
 }
 
 //Comment
