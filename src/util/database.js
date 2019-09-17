@@ -216,19 +216,78 @@ exports.updatePost = (id, data, res) => {
         })
     })
 }
+/**
+ * listar posts por categoria 
+ * em alta: ordenar reacoes das ultimas 24 horas 
+ * aleatorio: retorna um post qualquer
+ * recentes: ordenar por data
+ */
+exports.listPost = (data, res) => {
+    if(data){
+        const Op = Sequelize.Op;
+        if(data.data == 'em-alta'){
+            Post.findAll({
+                where: {
+                    updatedAt: {
+                        [Op.lt]: new Date(),
+                        [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000)
+                    } 
+                }
+            }).then((posts) => {
+                res.send({posts});
+            }).catch((e) => {
+                res.json({ message:'Erro no servidor' })
+            });
+        }else if(data.data == 'aleatorio'){
+            Post.findAll({ order: Sequelize.literal('rand()'), limit: 1 }).then((posts) => {
+                res.send({posts});
+            }).catch((e) => {
+                res.json({ message:'Erro no servidor' })
+            });
+        }else if(data.data == 'recentes' || data.data == undefined){
+            Post.findAll({
+                order: [['createdAt', 'DESC']]
+            }).then((posts) => {
+                console.log(posts)
+                res.send({data:posts});
+            }).catch((e) => {
+                res.json({ message:'Erro no servidor' })
+            });
+        }else {
+            Category.findOne({ where: {
+                name: data.data,
+            }}).then((category) => {
+                Post.findAll({
+                    where: [
+                        { category_id: category.id}
+                    ]
+                }).then((posts) => {
+                    res.send({data:posts});
+                }).catch((e) => {
+                    res.json({ message:'Erro no servidor' })
+                });
 
-exports.listPost = (res) => {
-    Post.findAll({
-        include: [
-            { model: Category, as: 'category'}
-        ]
-    }).then((posts) => {
-        console.log(posts)
-        res.send({data:posts});
-      }).catch((e) => {
-        res.json({ message:'Erro no servidor' })
-    });
+            }).catch((e) => {
+                res.json({ message:'Erro no servidor' })
+            })
+        }
+    }  
 }
+/**
+ * Funcao de busca: nome do post
+ */
+
+exports.search = (data, res) => {
+    const Op = Sequelize.Op
+    Post.findAll({ 
+        where:  { title: { [Op.like]:'%' + data.search + '%' } }  
+    }).then((posts) => {
+        res.send({posts})
+    }).catch((e) => {
+        res.json({ message: 'Erro no servidor' })
+    })
+}
+
 
 exports.deletePost = (id, res) => {
     Post.findByPk(id).then(() => {
