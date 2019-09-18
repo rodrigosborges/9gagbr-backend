@@ -282,7 +282,10 @@ exports.search = (data, res) => {
     Post.findAll({ 
         where:  { title: { [Op.like]:'%' + data.search + '%' } }  
     }).then((posts) => {
-        res.send({posts})
+        if(posts.length)
+            res.send({posts})
+        else
+            res.json({ message: "Nenhum resultado foi encontrado" })
     }).catch((e) => {
         res.json({ message: 'Erro no servidor' })
     })
