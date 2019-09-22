@@ -16,7 +16,7 @@ router.get('/', (req, res, next) => {
 
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, path.join(__dirname, '../storage/category/'))
+      cb(null, path.join(__dirname, '../..', 'public', 'storage', 'category'))
     },
     filename: (req, file, cb) => {
     cb(null, file.fieldname + '-' + Date.now())
@@ -37,7 +37,7 @@ router.post('/', upload.single('path'),(req, res, next) => {
             res.send('Dados incorretos');
         else
         insertCategory(data, res)
-        fs.renameSync(req.file.path, req.file.destination + data['path']);
+        fs.renameSync(req.file.path, path.join(req.file.destination, data['path']));
       })
 
       

@@ -16,10 +16,10 @@ router.get('/', (req, res, next) => {
 
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, path.join(__dirname, '../storage/post/'))
+      cb(null, path.join(__dirname, '../..', 'public', 'storage', 'post'))
     },
     filename: (req, file, cb) => {
-    cb(null, file.fieldname + '-' + Date.now())
+      cb(null, file.fieldname + '-' + Date.now())
     }
 });
 var upload = multer({ storage:storage })
@@ -27,20 +27,20 @@ var upload = multer({ storage:storage })
 router.post('/', upload.single('path'),(req, res, next) => {   
     var data = req.body
     data['path'] = data.title+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]
+    console.log(req.file)
     const v = new Validator(req.body, {
         title: 'required',
         path: 'required',
         category_id: 'required'
       })  
       v.check().then((matched) => {
-        if (!matched || !isImage(req.file.originalname)) 
+        if (!matched) 
             res.send('Dados incorretos')
         else
         insertPost(data, res)
-        fs.renameSync(req.file.path, req.file.destination + data['path']);
+        fs.renameSync(req.file.path, path.join(req.file.destination, data['path']));
       })
-    
-
+  
 })
 
 router.put('/:id', upload.single('path'),(req, res, next) => {
