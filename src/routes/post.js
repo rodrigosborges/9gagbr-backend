@@ -3,15 +3,19 @@ const rootDir = require('../util/rootDir')
 const bodyParser = require('body-parser')
 const router = express.Router()
 const path = require('path')
-const { insertPost, updatePost, deletePost, listPost } = require('../util/database.js')
+const { insertPost, updatePost, deletePost, listPost, search } = require('../util/database.js')
 router.use(bodyParser.urlencoded({extended:false}))
 const fs = require('fs')
 const { Validator } = require('node-input-validator')
 const isImage = require('is-image');
 const multer = require('multer')
 
-router.get('/', (req, res, next) => {
-    listPost(res);
+router.get('/:data?', (req, res, next) => {
+    listPost(req.params,res);
+})
+
+router.post('/search', (req, res, next) => {
+    search(req.body, res);
 })
 
 var storage = multer.diskStorage({
