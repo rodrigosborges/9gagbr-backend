@@ -242,19 +242,23 @@ exports.listPost = (data, res) => {
                 },
                 include: [
                     {  model: Category, as: 'category'},
-                    {  model: Reaction, as: 'reactions', attributes: [] }
+                    {  model: Reaction, as: 'reactions', attributes: []}
                  ],
                 attributes: { 
-                    include: [[Sequelize.fn("COUNT", Sequelize.col("posts.id")), "reactionCount"]] 
+                    include: [[Sequelize.fn("COUNT", Sequelize.col("reactions.id")), "reactionCount" ]],
                 },
+                group: ['posts.id'],
             }).then((posts) => {
                 res.json({posts});
             }).catch((e) => {
-                res.json({ message:'Erro no servidor' })
+                res.json({ message:e })
             });
         }else if(data.data == 'aleatorio'){
             Post.findAll({ 
-                order: Sequelize.literal('rand()'), limit: 1,                 
+                order: Sequelize.literal('rand()'), limit: 1, 
+                include: [
+                    { model: Category, as: 'category' }
+                ]                
             }).then((posts) => {
                 res.json({posts});
             }).catch((e) => {
@@ -268,8 +272,9 @@ exports.listPost = (data, res) => {
                     {  model: Reaction, as: 'reactions', attributes: [] }
                  ],
                 attributes: { 
-                    include: [[Sequelize.fn("COUNT", Sequelize.col("posts.id")), "reactionCount"]] 
-                }
+                    include: [[Sequelize.fn("COUNT", Sequelize.col("reactions.id")), "reactionCount"]] 
+                },
+                group: ['posts.id']
             }).then((posts) => {
                 res.json({data:posts});
             }).catch((e) => {
@@ -286,8 +291,9 @@ exports.listPost = (data, res) => {
                         {  model: Reaction, as: 'reactions', attributes: [] }
                      ],
                     attributes: { 
-                        include: [[Sequelize.fn("COUNT", Sequelize.col("posts.id")), "reactionCount"]] 
+                        include: [[Sequelize.fn("COUNT", Sequelize.col("reactions.id")), "reactionCount"]] 
                     },
+                    group: ['posts.id']
                 }).then((posts) => {
                     res.json({data:posts});
                 }).catch((e) => {
