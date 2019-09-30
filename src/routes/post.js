@@ -31,7 +31,7 @@ var upload = multer({ storage:storage })
 router.post('/', upload.single('path'),(req, res, next) => {   
     var data = req.body
     data['path'] = data.title+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]
-    console.log(req.file)
+    console.log(data['path'])
     const v = new Validator(req.body, {
         title: 'required',
         path: 'required',

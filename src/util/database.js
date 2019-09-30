@@ -115,8 +115,20 @@ Comment.belongsTo(User, {
     constraints: false
 })
 
+Post.hasMany(Comment, {
+    as: 'comment',
+    foreignKey: 'post_id',
+    constraints: false
+})
+
 Post.hasMany(Reaction, {
-    as: 'reactions',
+    as: 'positives',
+    foreignKey: 'post_id',
+    constraints: false
+})
+
+Post.hasMany(Reaction, {
+    as: 'negatives',
     foreignKey: 'post_id',
     constraints: false
 })
@@ -241,15 +253,32 @@ exports.listPost = (data, res) => {
                     } 
                 },
                 include: [
-                    {  model: Category, as: 'category'},
-                    {  model: Reaction, as: 'reactions', attributes: []}
+                    {  
+                        model: Category, 
+                        as: 'category'
+                    },
+                    {  
+                        model: Reaction, 
+                        as: 'positives',
+                        attributes: ['id'],
+                        where: { positive: 1 },
+                        required: false
+                    },
+                    {  
+                        model: Reaction, 
+                        as: 'negatives',
+                        attributes: ['id'],
+                        where: { positive: 0 },
+                        required: false
+                    },
+                    {
+                        model: Comment,
+                        as: 'comment',
+                        required:false
+                    }
                  ],
-                attributes: { 
-                    include: [[Sequelize.fn("COUNT", Sequelize.col("reactions.id")), "reactionCount" ]],
-                },
-                group: ['posts.id'],
             }).then((posts) => {
-                res.json({posts});
+                res.json({data:posts});
             }).catch((e) => {
                 res.json({ message:e })
             });
@@ -257,8 +286,30 @@ exports.listPost = (data, res) => {
             Post.findAll({ 
                 order: Sequelize.literal('rand()'), limit: 1, 
                 include: [
-                    { model: Category, as: 'category' }
-                ]                
+                    {  
+                        model: Category, 
+                        as: 'category'
+                    },
+                    {  
+                        model: Reaction, 
+                        as: 'positives',
+                        attributes: ['id'],
+                        where: { positive: 1 },
+                        required: false
+                    },
+                    {  
+                        model: Reaction, 
+                        as: 'negatives',
+                        attributes: ['id'],
+                        where: { positive: 0 },
+                        required: false
+                    },
+                    {
+                        model: Comment,
+                        as: 'comment',
+                        required:false
+                    }
+                 ],               
             }).then((posts) => {
                 res.json({posts});
             }).catch((e) => {
@@ -268,13 +319,30 @@ exports.listPost = (data, res) => {
             Post.findAll({
                 order: [['createdAt', 'DESC']],
                 include: [
-                    {  model: Category, as: 'category'},
-                    {  model: Reaction, as: 'reactions', attributes: [] }
+                    {  
+                        model: Category, 
+                        as: 'category'
+                    },
+                    {  
+                        model: Reaction, 
+                        as: 'positives',
+                        attributes: ['id'],
+                        where: { positive: 1 },
+                        required: false
+                    },
+                    {  
+                        model: Reaction, 
+                        as: 'negatives',
+                        attributes: ['id'],
+                        where: { positive: 0 },
+                        required: false
+                    },
+                    {
+                        model: Comment,
+                        as: 'comment',
+                        required:false
+                    }
                  ],
-                attributes: { 
-                    include: [[Sequelize.fn("COUNT", Sequelize.col("reactions.id")), "reactionCount"]] 
-                },
-                group: ['posts.id']
             }).then((posts) => {
                 res.json({data:posts});
             }).catch((e) => {
@@ -287,13 +355,32 @@ exports.listPost = (data, res) => {
                 Post.findAll({
                     where: [{ category_id: category.id}],
                     include: [
-                        {  model: Category, as: 'category'},
-                        {  model: Reaction, as: 'reactions', attributes: [] }
+                        {  
+                            model: Category, 
+                            as: 'category'
+                        },
+                        {  
+                            model: Reaction, 
+                            as: 'positives',
+                            attributes: ['id'],
+                            where: { positive: 1 },
+                            required:false
+                           
+                        },
+                        {  
+                            model: Reaction, 
+                            as: 'negatives',
+                            attributes: ['id'],
+                            where: { positive: 0 },
+                            required: false
+                        },
+                        {  
+                            model: Comment, 
+                            as: 'comment',
+                            required:false
+                        },
+
                      ],
-                    attributes: { 
-                        include: [[Sequelize.fn("COUNT", Sequelize.col("reactions.id")), "reactionCount"]] 
-                    },
-                    group: ['posts.id']
                 }).then((posts) => {
                     res.json({data:posts});
                 }).catch((e) => {
@@ -308,13 +395,39 @@ exports.listPost = (data, res) => {
 }
 /**
  * Funcao de busca: nome do post
- * quantidade curtidas, comentarios
  */
 
 exports.search = (data, res) => {
     const Op = Sequelize.Op
     Post.findAll({ 
-        where:  { title: { [Op.like]:'%' + data.search + '%' } }  
+        where:  { title: { [Op.like]:'%' + data.search + '%' } },  
+        include: [
+            {  
+                model: Category, 
+                as: 'category'
+            },
+            {  
+                model: Reaction, 
+                as: 'positives',
+                attributes: ['id'],
+                where: { positive: 1 },
+                required:false
+               
+            },
+            {  
+                model: Reaction, 
+                as: 'negatives',
+                attributes: ['id'],
+                where: { positive: 0 },
+                required: false
+            },
+            {  
+                model: Comment, 
+                as: 'comment',
+                required:false
+            },
+
+         ],
     }).then((posts) => {
         if(posts.length)
             res.json({posts})
