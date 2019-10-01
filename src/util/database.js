@@ -246,12 +246,6 @@ exports.listPost = (data, res) => {
         const Op = Sequelize.Op;
         if(data.data == 'em-alta'){
             Post.findAll({
-                where: {
-                    updatedAt: {
-                        [Op.lt]: new Date(),
-                        [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000)
-                    } 
-                },
                 include: [
                     {  
                         model: Category, 
@@ -277,6 +271,8 @@ exports.listPost = (data, res) => {
                         required:false
                     }
                  ],
+            }).then((posts) => {
+                Reaction.findAll({ where: { post_id:posts } })
             }).then((posts) => {
                 res.json({data:posts});
             }).catch((e) => {
@@ -461,7 +457,7 @@ exports.insertReaction = (data, res) => {
         })
     }else{
         Reaction.create(data).then(() => {
-            res.json({ message: 'Reaction cadastrada com sucesso' })
+            res.json({ message: ' cadastrada com sucesso' })
         }).catch((e) => {
             res.json({ message: 'Erro no servidor' })
         })

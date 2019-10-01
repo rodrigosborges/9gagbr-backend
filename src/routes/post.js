@@ -7,10 +7,10 @@ const { insertPost, updatePost, deletePost, listPost, search } = require('../uti
 router.use(bodyParser.urlencoded({extended:false}))
 const fs = require('fs')
 const { Validator } = require('node-input-validator')
-const isImage = require('is-image');
 const multer = require('multer')
 
 router.get('/:data?', (req, res, next) => {
+    console.log(1)
     listPost(req.params,res);
 })
 
@@ -30,42 +30,39 @@ var upload = multer({ storage:storage })
 
 router.post('/', upload.single('path'),(req, res, next) => {   
     var data = req.body
-    data['path'] = data.title+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]
-    console.log(data['path'])
+    var ext = req.file.originalname.split('.')[1]
+    data['path'] = data.title+'-'+Date.now()+'.'+ext
     const v = new Validator(req.body, {
-        title: 'required',
+        title: 'required|minLength:3|maxLength:50',
         path: 'required',
         category_id: 'required'
       })  
       v.check().then((matched) => {
-        if (!matched) 
-            res.send('Dados incorretos')
+        if (!matched || !['jpg', 'jpeg', 'png', 'webm', 'mp4', 'gif'].includes(ext)) 
+            res.json({ "message":"'Dados incorretos'" })
         else
-        insertPost(data, res)
-        fs.renameSync(req.file.path, path.join(req.file.destination, data['path']));
+            insertPost(data, res)
+            fs.renameSync(req.file.path, path.join(req.file.destination, data['path']));
       })
   
 })
 
-router.put('/:id', upload.single('path'),(req, res, next) => {
+router.post('/:id', (req, res, next) => {
     if(req.body._method != "PUT")
         return next()
 
-    var data = req.body
-    data['path'] = data.title+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]
     const v = new Validator(req.body, {
-        title: 'required',
-        path: 'required',
+        title: 'required|minLength:3|maxLength:50',
         category_id: 'required'
-      })  
-      v.check().then((matched) => {
-        if (!matched || !isImage(req.file.originalname)) 
-            res.send('Dados incorretos')
+    })  
+    v.check().then((matched) => {
+        if(!matched)
+            res.json({ "message":"Dados incorretos" })
         else
-        updatePost(req.params.id, data, res)
-        fs.renameSync(req.file.path, req.file.destination + data['path']);
-      })
+        updatePost(req.params.id, req.body, res)
+    })   
 })
+
 
 router.delete('/:id', (req, res) => {
     deletePost(req.params.id,res)
