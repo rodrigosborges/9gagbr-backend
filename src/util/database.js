@@ -254,16 +254,26 @@ exports.listPost = (data, res) => {
                     {  
                         model: Reaction, 
                         as: 'positives',
-                        attributes: ['id'],
-                        where: { positive: 1 },
-                        required: false
+                        attributes: ['id','createdAt'],
+                        where: { 
+                            positive: 1,
+                            createdAt: {
+                                [Op.lt]: new Date(),
+                                [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000)
+                            }
+                        },
                     },
                     {  
                         model: Reaction, 
                         as: 'negatives',
-                        attributes: ['id'],
-                        where: { positive: 0 },
-                        required: false
+                        attributes: ['id','createdAt'],
+                        where: { 
+                            positive: 0,
+                            createdAt: {
+                                [Op.lt]: new Date(),
+                                [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000)
+                            }
+                        },
                     },
                     {
                         model: Comment,
@@ -271,12 +281,23 @@ exports.listPost = (data, res) => {
                         required:false
                     }
                  ],
-            }).then((posts) => {
-                Reaction.findAll({ where: { post_id:posts } })
-            }).then((posts) => {
-                res.json({data:posts});
+            })
+            // .then(posts => {
+            //     posts.forEach(post => {
+            //         Reaction.findAll({
+            //             where: {
+            //                 updatedAt: {
+            //                     [Op.lt]: new Date(),
+            //                     [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000)
+            //                 }
+            //             }
+            //         })
+            //     })
+            // })
+            .then((post) => {
+                res.json({data:post});
             }).catch((e) => {
-                res.json({ message:e })
+                res.json({ message: e })
             });
         }else if(data.data == 'aleatorio'){
             Post.findAll({ 
