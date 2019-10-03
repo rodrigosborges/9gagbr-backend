@@ -245,7 +245,7 @@ exports.updatePost = (id, data, res) => {
  * em alta: ordenar reacoes das ultimas 24 horas 
  * recentes: ordenar por data
  * quantidade curtidas, comentarios
- * caso o parametro da funcao de retornar post seja vazio retornar post aleatorio
+ * 
  */
 exports.listPost = (data, res) => {
     if(data){
@@ -292,7 +292,7 @@ exports.listPost = (data, res) => {
                 res.json({ message: e })
             });
         }else if(data.data == 'aleatorio'){
-            Post.findAll({ 
+            Post.findOne({ 
                 order: Sequelize.literal('rand()'), limit: 1, 
                 include: [
                     {  
@@ -404,7 +404,7 @@ exports.listPost = (data, res) => {
 }
 /**
  * Funcao de busca: nome do post
- */
+*/
 
 exports.search = (data, res) => {
     const Op = Sequelize.Op
@@ -459,7 +459,7 @@ exports.deletePost = (id, res) => {
 }
 
 //Reaction
-exports.insertReaction = (data, res) => {
+exports.makeReaction = (data, res) => {
     if(data.remove){
         Reaction.findByPk(data.id).then(() => {
             Reaction.destroy({ where: {id: data.id} }).then(() => {
@@ -493,7 +493,7 @@ exports.countReaction = (id, res) => {
 exports.insertComment = (data, res) => {
     console.log(data)
     Comment.create(data).then(() => {
-        res.json({ message: 'Comentario inserido com sucesso' })
+        res.json({ message: 'Post comentado com sucesso' })
     }).catch((e) => {
         res.json({ message: 'Erro no servidor' })
     })
