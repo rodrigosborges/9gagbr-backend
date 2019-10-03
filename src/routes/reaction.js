@@ -9,8 +9,6 @@ router.post('/', (req, res, next) => {
     insertReaction(req.body, res)
 })
 
-router.post('/count', (req, res, next) => {
-    countReaction(req.body, res)
-})
+
 
 module.exports = router
