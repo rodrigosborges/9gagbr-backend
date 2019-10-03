@@ -116,7 +116,7 @@ Comment.belongsTo(User, {
 })
 
 Post.hasMany(Comment, {
-    as: 'comment',
+    as: 'comments',
     foreignKey: 'post_id',
     constraints: false
 })
@@ -282,7 +282,7 @@ exports.listPost = (data, res) => {
                     },
                     {
                         model: Comment,
-                        as: 'comment',
+                        as: 'comments',
                         required:false
                     }
                  ],
@@ -315,7 +315,7 @@ exports.listPost = (data, res) => {
                     },
                     {
                         model: Comment,
-                        as: 'comment',
+                        as: 'comments',
                         required:false
                     }
                  ],               
@@ -348,7 +348,7 @@ exports.listPost = (data, res) => {
                     },
                     {
                         model: Comment,
-                        as: 'comment',
+                        as: 'comments',
                         required:false
                     }
                  ],
@@ -385,7 +385,7 @@ exports.listPost = (data, res) => {
                         },
                         {  
                             model: Comment, 
-                            as: 'comment',
+                            as: 'comments',
                             required:false
                         },
 
@@ -432,7 +432,7 @@ exports.search = (data, res) => {
             },
             {  
                 model: Comment, 
-                as: 'comment',
+                as: 'comments',
                 required:false
             },
 
