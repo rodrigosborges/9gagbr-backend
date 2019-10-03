@@ -244,7 +244,7 @@ exports.updatePost = (id, data, res) => {
 exports.listPost = (data, res) => {
     if(data){
         const Op = Sequelize.Op;
-        if(data.data == 'em-alta'){
+        if(data.data == 'Em alta'){
             Post.findAll({
                 include: [
                     {  
@@ -299,7 +299,7 @@ exports.listPost = (data, res) => {
             }).catch((e) => {
                 res.json({ message: e })
             });
-        }else if(data.data == 'aleatorio'){
+        }else if(data.data == 'Aleatório'){
             Post.findAll({ 
                 order: Sequelize.literal('rand()'), limit: 1, 
                 include: [
@@ -332,7 +332,7 @@ exports.listPost = (data, res) => {
             }).catch((e) => {
                 res.json({ message:'Erro no servidor' })
             });
-        }else if(data.data == 'recentes' || data.data == undefined){
+        }else if(data.data == 'Recentes' || data.data == undefined){
             Post.findAll({
                 order: [['createdAt', 'DESC']],
                 include: [
