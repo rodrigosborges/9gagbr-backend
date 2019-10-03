@@ -133,6 +133,12 @@ Post.hasMany(Reaction, {
     constraints: false
 })
 
+Post.hasMany(Reaction, {
+    as: 'reaction',
+    foreignKey: 'post_id',
+    constraints: false
+})
+
 Post.belongsTo(Category, {
     as: 'category',
     foreignKey: 'category_id',
@@ -254,26 +260,25 @@ exports.listPost = (data, res) => {
                     {  
                         model: Reaction, 
                         as: 'positives',
-                        attributes: ['id','createdAt'],
-                        where: { 
-                            positive: 1,
-                            createdAt: {
-                                [Op.lt]: new Date(),
-                                [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000)
-                            }
-                        },
+                        attributes: ['id'],
+                        required:false
                     },
                     {  
                         model: Reaction, 
                         as: 'negatives',
-                        attributes: ['id','createdAt'],
+                        attributes: ['id'],
+                        required: false
+                    },
+                    {
+                        model: Reaction,
+                        as: 'reaction',
+                        attributes: ['id', 'updatedAt'],
                         where: { 
-                            positive: 0,
-                            createdAt: {
+                            updatedAt: {
                                 [Op.lt]: new Date(),
                                 [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000)
                             }
-                        },
+                        }
                     },
                     {
                         model: Comment,
@@ -281,20 +286,7 @@ exports.listPost = (data, res) => {
                         required:false
                     }
                  ],
-            })
-            // .then(posts => {
-            //     posts.forEach(post => {
-            //         Reaction.findAll({
-            //             where: {
-            //                 updatedAt: {
-            //                     [Op.lt]: new Date(),
-            //                     [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000)
-            //                 }
-            //             }
-            //         })
-            //     })
-            // })
-            .then((post) => {
+            }).then((post) => {
                 res.json({data:post});
             }).catch((e) => {
                 res.json({ message: e })
