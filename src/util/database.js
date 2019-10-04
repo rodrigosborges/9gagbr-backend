@@ -159,7 +159,7 @@ async function hashPasswordUpdate(user, option) {
 // USER
 exports.insertUser = (data, res) => {
     User.create(data).then(() => {
-        res.json({ message: 'Usuario cadastrada com sucesso' })
+        res.json({ message: 'Usuario cadastrado com sucesso' })
     }).catch((e) => {
         res.json({ message: 'Erro no servidor' })
     })
@@ -179,7 +179,7 @@ exports.deleteUser = (id, res) => {
     User.findByPk(id).then(() => {
         User.destroy({ where: { id: id } })
     }).then(() => {
-        res.json({ message: 'Usuario deletada com sucesso' })
+        res.json({ message: 'Usuario deletado com sucesso' })
     }).catch((e) => {
         res.json({ message: 'Erro no servidor' })
     })
@@ -240,9 +240,49 @@ exports.updatePost = (id, data, res) => {
         })
     })
 }
+
+exports.findPost = (id, res) => {
+    Post.findOne({ 
+        where:  { 
+            id: id.id
+        },  
+        include: [
+            {  
+                model: Category, 
+                as: 'category'
+            },
+            {  
+                model: Reaction, 
+                as: 'positives',
+                attributes: ['id'],
+                where: { positive: 1 },
+                required:false
+               
+            },
+            {  
+                model: Reaction, 
+                as: 'negatives',
+                attributes: ['id'],
+                where: { positive: 0 },
+                required: false
+            },
+            {  
+                model: Comment, 
+                as: 'comments',
+                required:false
+            },
+
+         ],
+    }).then((post) => {
+            res.json({post})
+    }).catch((e) => {
+        res.json({ message: 'Erro no servidor' })
+    })
+}
+
 /**
  * listar posts por categoria 
- * em alta: ordenar reacoes das ultimas 24 horas 
+ * em alta: posts que tiveram mais curtidas nas ultimas 24 horas
  * recentes: ordenar por data
  * quantidade curtidas, comentarios
  * 
@@ -270,22 +310,19 @@ exports.listPost = (data, res) => {
                         required: false
                     },
                     {
-                        model: Reaction,
-                        as: 'reaction',
-                        attributes: ['id', 'updatedAt'],
-                        where: { 
-                            updatedAt: {
-                                [Op.lt]: new Date(),
-                                [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000)
-                            }
-                        }
-                    },
-                    {
                         model: Comment,
                         as: 'comments',
                         required:false
+                    },
+                    {
+                        model: Reaction,
+                        as: 'reaction'
                     }
                  ],
+                 order: [
+                    //['reaction', 'updatedAt', 'DESC'],
+                
+                ],
             }).then((post) => {
                 res.json({data:post});
             }).catch((e) => {
@@ -293,34 +330,9 @@ exports.listPost = (data, res) => {
             });
         }else if(data.data == 'Aleatório'){
             Post.findOne({ 
-                order: Sequelize.literal('rand()'), limit: 1, 
-                include: [
-                    {  
-                        model: Category, 
-                        as: 'category'
-                    },
-                    {  
-                        model: Reaction, 
-                        as: 'positives',
-                        attributes: ['id'],
-                        where: { positive: 1 },
-                        required: false
-                    },
-                    {  
-                        model: Reaction, 
-                        as: 'negatives',
-                        attributes: ['id'],
-                        where: { positive: 0 },
-                        required: false
-                    },
-                    {
-                        model: Comment,
-                        as: 'comments',
-                        required:false
-                    }
-                 ],               
+                order: Sequelize.literal('rand()'), limit: 1,               
             }).then((posts) => {
-                res.json({posts});
+                res.json(posts.id);
             }).catch((e) => {
                 res.json({ message:'Erro no servidor' })
             });
@@ -470,7 +482,7 @@ exports.makeReaction = (data, res) => {
         })
     }else{
         Reaction.create(data).then(() => {
-            res.json({ message: ' cadastrada com sucesso' })
+            res.json({ message: 'Reação cadastrada com sucesso' })
         }).catch((e) => {
             res.json({ message: 'Erro no servidor' })
         })
@@ -478,20 +490,19 @@ exports.makeReaction = (data, res) => {
 }
 
 exports.countReaction = (id, res) => {
-        Reaction.count({
-            where: {
-              post_id: id.post_id,
-            }
-        }).then(function(posts){
-            res.json({data:posts});
-          }).catch((e) => {
-            res.json({ message:'Erro no servidor' })
-        });
+    Reaction.count({
+        where: {
+            post_id: id.post_id,
+        }
+    }).then(function(posts){
+        res.json({data:posts});
+        }).catch((e) => {
+        res.json({ message:'Erro no servidor' })
+    });
 }
 
 //Comment
 exports.insertComment = (data, res) => {
-    console.log(data)
     Comment.create(data).then(() => {
         res.json({ message: 'Post comentado com sucesso' })
     }).catch((e) => {
