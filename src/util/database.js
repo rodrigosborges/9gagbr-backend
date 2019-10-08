@@ -301,12 +301,14 @@ exports.listPost = (data, res) => {
                         model: Reaction, 
                         as: 'positives',
                         attributes: ['id'],
-                        required:false
+                        where: { positive: 1 },
+                        required: false
                     },
                     {  
                         model: Reaction, 
                         as: 'negatives',
                         attributes: ['id'],
+                        where: { positive: 0 },
                         required: false
                     },
                     {
@@ -316,15 +318,25 @@ exports.listPost = (data, res) => {
                     },
                     {
                         model: Reaction,
-                        as: 'reaction'
+                        as: 'reaction',
+                        where: { positive:1 },
+                        attributes : [  
+                            [Sequelize.fn("COUNT", Sequelize.col("id")), "ReactionCount"],
+                        ],
+                        group:'post_id',
+                        separate:true,
+                        order: [ ['updatedAt','DESC'] ]
                     }
                  ],
-                 order: [
-                    //['reaction', 'updatedAt', 'DESC'],
-                
-                ],
-            }).then((post) => {
-                res.json({data:post});
+                /**
+                * ordenar pela quantidade de curtida das ultimas 24h
+                * ordenar posts pela maior quantidade de reacao positiva 
+                * SELECT id, (SELECT Count(id)  FROM   reactions WHERE  reactions.post_id = posts.id GROUP  BY post_id) 
+                * AS Count FROM posts GROUP  BY id
+                * 
+                */
+            }).then((posts) => {
+               res.json({message:posts})
             }).catch((e) => {
                 res.json({ message: e })
             });
@@ -449,6 +461,9 @@ exports.search = (data, res) => {
             },
 
          ],
+         order: [
+             ['id','DESC']
+         ]
     }).then((posts) => {
         if(posts.length)
             res.json({posts})
