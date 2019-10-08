@@ -31,7 +31,7 @@ const User = sequelize.define('users',
           beforeCreate: hashPassword,
           beforeBulkUpdate: hashPasswordUpdate
         }
-    } 
+    }
 )
 
 const Category = sequelize.define('categories', {
@@ -450,10 +450,7 @@ exports.search = (data, res) => {
 
          ],
     }).then((posts) => {
-        if(posts.length)
-            res.json({posts})
-        else
-            res.json({ message: "Nenhum resultado foi encontrado" })
+        res.json({data: posts})
     }).catch((e) => {
         res.json({ message: 'Erro no servidor' })
     })
