@@ -50,7 +50,7 @@ router.post('/', upload.single('path'),(req, res, next) => {
   
 })
 
-router.post('/:id', (req, res, next) => {
+router.put('/:id', (req, res, next) => {
     if(req.body._method != "PUT")
         return next()
 
