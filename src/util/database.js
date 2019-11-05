@@ -280,6 +280,16 @@ exports.findPost = (id, res) => {
     })
 }
 
+exports.paginate = ({ page, pageSize }) => {
+    const offset = page * pageSize;
+    const limit = offset + pageSize;
+
+    return {
+        offset,
+        limit
+    };
+};
+
 /**
  * listar posts por categoria 
  * em alta: posts que tiveram mais curtidas nas ultimas 24 horas
@@ -287,7 +297,9 @@ exports.findPost = (id, res) => {
  * quantidade curtidas, comentarios
  * 
  */
-exports.listPost = (data, res) => {
+exports.listPost = (data, pages, res) => {
+    let page = pages
+    let pageSize = 2
     if(data){
         const Op = Sequelize.Op;
         if(data.data == 'Em alta'){
@@ -320,12 +332,10 @@ exports.listPost = (data, res) => {
                         model: Reaction,
                         as: 'reaction',
                         where: { positive:1 },
-                        attributes : [  
-                            [Sequelize.fn("COUNT", Sequelize.col("id")), "ReactionCount"],
-                        ],
-                        group:'post_id',
+                        group: ['post_id'],
+                        attributes: [ [Sequelize.fn("COUNT", Sequelize.col("id") ), "ReactionCount"]],
                         separate:true,
-                        order: [ ['updatedAt','DESC'] ]
+                       // order: [[sequelize.literal('ReactionCount'), 'DESC'] ]
                     }
                  ],
                 /**
@@ -336,7 +346,7 @@ exports.listPost = (data, res) => {
                 * 
                 */
             }).then((posts) => {
-               res.json({message:posts})
+               res.json({message:posts,})
             }).catch((e) => {
                 res.json({ message: e })
             });
@@ -350,6 +360,7 @@ exports.listPost = (data, res) => {
             });
         }else if(data.data == 'Recentes' || data.data == undefined){
             Post.findAll({
+                offset: page, limit: pageSize,
                 order: [['createdAt', 'DESC']],
                 include: [
                     {  
@@ -377,7 +388,8 @@ exports.listPost = (data, res) => {
                     }
                  ],
             }).then((posts) => {
-                res.json({data:posts});
+                this.paginate({page, pageSize}),
+                res.json({data:posts, page, pageSize});
             }).catch((e) => {
                 res.json({ message:'Erro no servidor' })
             });
