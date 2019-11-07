@@ -51,13 +51,12 @@ router.post('/', upload.single('path'),(req, res, next) => {
 })
 
 router.put('/:id', (req, res, next) => {
-    if(req.body._method != "PUT")
-        return next()
 
     const v = new Validator(req.body, {
         title: 'required|minLength:3|maxLength:50',
         category_id: 'required'
     })  
+
     v.check().then((matched) => {
         if(!matched)
             res.json({ "message":"Dados incorretos" })
