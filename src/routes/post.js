@@ -10,7 +10,11 @@ const { Validator } = require('node-input-validator')
 const multer = require('multer')
 
 router.get('/:data?', (req, res, next) => {
-    listPost(req.params,res);
+    if(req.query.page === undefined)
+        page = 0 
+     else 
+        page = +req.query.page; 
+    listPost(req.params,page,res);
 })
 
 router.post('/search', (req, res, next) => {

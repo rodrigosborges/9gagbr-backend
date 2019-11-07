@@ -280,6 +280,16 @@ exports.findPost = (id, res) => {
     })
 }
 
+exports.paginate = ({ page, pageSize }) => {
+    const offset = page * pageSize;
+    const limit = offset + pageSize;
+
+    return {
+        offset,
+        limit
+    };
+};
+
 /**
  * listar posts por categoria 
  * em alta: posts que tiveram mais curtidas nas ultimas 24 horas
@@ -287,7 +297,9 @@ exports.findPost = (id, res) => {
  * quantidade curtidas, comentarios
  * 
  */
-exports.listPost = (data, res) => {
+exports.listPost = (data, pages, res) => {
+    let page = pages
+    let pageSize = 2
     if(data){
         const Op = Sequelize.Op;
         if(data.data == 'Em alta'){
@@ -301,12 +313,14 @@ exports.listPost = (data, res) => {
                         model: Reaction, 
                         as: 'positives',
                         attributes: ['id'],
-                        required:false
+                        where: { positive: 1 },
+                        required: false
                     },
                     {  
                         model: Reaction, 
                         as: 'negatives',
                         attributes: ['id'],
+                        where: { positive: 0 },
                         required: false
                     },
                     {
@@ -316,15 +330,23 @@ exports.listPost = (data, res) => {
                     },
                     {
                         model: Reaction,
-                        as: 'reaction'
+                        as: 'reaction',
+                        where: { positive:1 },
+                        group: ['post_id'],
+                        attributes: [ [Sequelize.fn("COUNT", Sequelize.col("id") ), "ReactionCount"]],
+                        separate:true,
+                       // order: [[sequelize.literal('ReactionCount'), 'DESC'] ]
                     }
                  ],
-                 order: [
-                    //['reaction', 'updatedAt', 'DESC'],
-                
-                ],
-            }).then((post) => {
-                res.json({data:post});
+                /**
+                * ordenar pela quantidade de curtida das ultimas 24h
+                * ordenar posts pela maior quantidade de reacao positiva 
+                * SELECT id, (SELECT Count(id)  FROM   reactions WHERE  reactions.post_id = posts.id GROUP  BY post_id) 
+                * AS Count FROM posts GROUP  BY id
+                * 
+                */
+            }).then((posts) => {
+               res.json({message:posts,})
             }).catch((e) => {
                 res.json({ message: e })
             });
@@ -338,6 +360,7 @@ exports.listPost = (data, res) => {
             });
         }else if(data.data == 'Recentes' || data.data == undefined){
             Post.findAll({
+                offset: page, limit: pageSize,
                 order: [['createdAt', 'DESC']],
                 include: [
                     {  
@@ -365,7 +388,8 @@ exports.listPost = (data, res) => {
                     }
                  ],
             }).then((posts) => {
-                res.json({data:posts});
+                this.paginate({page, pageSize}),
+                res.json({data:posts, page, pageSize});
             }).catch((e) => {
                 res.json({ message:'Erro no servidor' })
             });
@@ -449,6 +473,9 @@ exports.search = (data, res) => {
             },
 
          ],
+         order: [
+             ['id','DESC']
+         ]
     }).then((posts) => {
         res.json({data: posts})
     }).catch((e) => {
