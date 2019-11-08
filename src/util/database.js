@@ -115,6 +115,12 @@ Comment.belongsTo(User, {
     constraints: false
 })
 
+User.hasMany(Comment, {
+    as: 'comments',
+    foreignKey: 'user_id',
+    constraints: false
+})
+
 Post.hasMany(Comment, {
     as: 'comments',
     foreignKey: 'post_id',
@@ -269,20 +275,22 @@ exports.findPost = (id, res) => {
             {  
                 model: Comment, 
                 as: 'comments',
-                required:false
+                required:false,
+                include: [ { model: User, as: 'users' } ]
             },
 
          ],
     }).then((post) => {
-            res.json({post})
+        res.json(post)
     }).catch((e) => {
-        res.json({ message: 'Erro no servidor' })
+        res.json({ message: e })
     })
 }
 
 exports.paginate = ({ page, pageSize }) => {
-    const offset = page * pageSize;
-    const limit = offset + pageSize;
+
+    // const offset = ((page-1) * pageSize)+(page == 1 ? 0 : 1);
+    // const limit = pageSize;
 
     return {
         offset,
@@ -297,13 +305,13 @@ exports.paginate = ({ page, pageSize }) => {
  * quantidade curtidas, comentarios
  * 
  */
-exports.listPost = (data, pages, res) => {
-    let page = pages
-    let pageSize = 2
+exports.listPost = (data, page, res) => {
+    let pageSize = 5
     if(data){
         const Op = Sequelize.Op;
         if(data.data == 'Em alta'){
             Post.findAll({
+                offset: ((page-1) * pageSize),
                 include: [
                     {  
                         model: Category, 
@@ -360,7 +368,8 @@ exports.listPost = (data, pages, res) => {
             });
         }else if(data.data == 'Recentes' || data.data == undefined){
             Post.findAll({
-                offset: page, limit: pageSize,
+                offset: ((page-1) * pageSize),
+                limit: pageSize,
                 order: [['createdAt', 'DESC']],
                 include: [
                     {  
@@ -388,8 +397,7 @@ exports.listPost = (data, pages, res) => {
                     }
                  ],
             }).then((posts) => {
-                this.paginate({page, pageSize}),
-                res.json({data:posts, page, pageSize});
+                res.json({data:posts, page});
             }).catch((e) => {
                 res.json({ message:'Erro no servidor' })
             });
@@ -398,6 +406,7 @@ exports.listPost = (data, pages, res) => {
                 name: data.data,
             }}).then((category) => {
                 Post.findAll({
+                    offset: ((page-1) * pageSize),
                     where: [{ category_id: category.id}],
                     include: [
                         {  

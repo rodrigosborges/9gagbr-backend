@@ -10,8 +10,8 @@ const { Validator } = require('node-input-validator')
 const multer = require('multer')
 
 router.get('/:data?', (req, res, next) => {
-    if(req.query.page === undefined)
-        page = 0 
+    if(req.query.page === undefined || req.query.page == 0)
+        page = 1
      else 
         page = +req.query.page; 
     listPost(req.params,page,res);
