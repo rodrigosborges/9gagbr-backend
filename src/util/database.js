@@ -260,15 +260,14 @@ exports.findPost = (id, res) => {
             {  
                 model: Reaction, 
                 as: 'positives',
-                attributes: ['id'],
+                attributes: ['id','user_id'],
                 where: { positive: 1 },
                 required:false
-               
             },
             {  
                 model: Reaction, 
                 as: 'negatives',
-                attributes: ['id'],
+                attributes: ['id','user_id'],
                 where: { positive: 0 },
                 required: false
             },
@@ -276,7 +275,12 @@ exports.findPost = (id, res) => {
                 model: Comment, 
                 as: 'comments',
                 required:false,
-                include: [ { model: User, as: 'users' } ]
+                include: {  
+                    model: User, 
+                    as: 'user',
+                    attributes: ['name', 'email']
+                },
+                
             },
 
          ],
