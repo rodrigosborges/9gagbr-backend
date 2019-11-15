@@ -278,12 +278,13 @@ exports.findPost = (id, res) => {
                 include: {  
                     model: User, 
                     as: 'user',
-                    attributes: ['name', 'email']
+                    attributes: ['name']
                 },
-                
             },
-
          ],
+         order: [  
+            [ { model: Comment, as: 'comments' }, 'createdAt', 'DESC'],  
+          ],
     }).then((post) => {
         res.json(post)
     }).catch((e) => {
