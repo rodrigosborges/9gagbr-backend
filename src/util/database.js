@@ -26,6 +26,10 @@ const User = sequelize.define('users',
             type: Sequelize.STRING(100),
             allowNull: false
         },
+        token: {
+            type: Sequelize.STRING(100),
+            allowNull: false
+        }
     },{
         hooks: {
           beforeCreate: hashPassword,
@@ -189,6 +193,10 @@ exports.deleteUser = (id, res) => {
     }).catch((e) => {
         res.json({ message: 'Erro no servidor' })
     })
+}
+
+exports.login = (data, res) => {
+    console.log(data)
 }
 
 //Category
@@ -510,6 +518,7 @@ exports.deletePost = (id, res) => {
 
 //Reaction
 exports.makeReaction = (data, res) => {
+    console.log(data)
     if(data.remove){
         Reaction.findByPk(data.id).then(() => {
             Reaction.destroy({ where: {id: data.id} }).then(() => {

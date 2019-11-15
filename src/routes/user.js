@@ -4,11 +4,15 @@ const bodyParser = require('body-parser')
 const router = express.Router()
 const path = require('path')
 const { Validator } = require('node-input-validator')
-const {insertUser, deleteUser, updateUser, listUser} = require('../util/database.js')
+const {insertUser, deleteUser, updateUser, login} = require('../util/database.js')
 router.use(bodyParser.urlencoded({extended:false}))
 
 router.get('/', (req, res, next) => {
     res.sendFile(path.join(rootDir,'src','views','user','form.html'))
+})
+
+router.post('/login', (req, res, next) => {
+    login(req.body, res)
 })
 
 router.post('/', (req, res, next) => { 
