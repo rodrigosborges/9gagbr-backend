@@ -518,17 +518,27 @@ exports.deletePost = (id, res) => {
 
 //Reaction
 exports.makeReaction = (data, res) => {
-    console.log(data)
     if(data.remove){
-        Reaction.findByPk(data.id).then(() => {
-            Reaction.destroy({ where: {id: data.id} }).then(() => {
-                res.json({ message: 'Reação deletada com sucesso' })
-            }).catch(() => {
-                res.json({ message: 'Erro no servidor' })
-            })
+        Reaction.destroy({
+            where:{
+                user_id: data.user_id,
+                post_id: data.post_id,
+            }
+        }).then(() => {
+            res.json({ message: 'Reação deletada com sucesso' })
+        }).catch(() => {
+            res.json({ message: 'Erro no servidor' })
         })
     }else{
-        Reaction.create(data).then(() => {
+        Reaction.findOne({
+            user_id: data.user_id,
+            post_id: data.post_id,
+        }).then((obj) => {
+            if (obj)
+                obj.update(data)
+            else
+                Reaction.create(data)
+
             res.json({ message: 'Reação cadastrada com sucesso' })
         }).catch((e) => {
             res.json({ message: 'Erro no servidor' })
