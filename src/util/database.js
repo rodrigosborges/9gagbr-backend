@@ -28,7 +28,7 @@ const User = sequelize.define('users',
         },
         token: {
             type: Sequelize.STRING(100),
-            allowNull: false
+            allowNull: true
         }
     },{
         hooks: {
@@ -64,6 +64,10 @@ const Post = sequelize.define('posts',
             type: Sequelize.INTEGER,
             allowNull: false
         },
+        user_id: {
+            type: Sequelize.INTEGER,
+            allowNull: false
+        }
     }, 
 )
 
@@ -155,6 +159,12 @@ Post.belongsTo(Category, {
     constraints: false
 })
 
+Post.belongsTo(User, {
+    as: 'user',
+    foreignKey: 'user_id',
+    constraints: false
+})
+
 async function hashPassword(user, options) {
     user.password = await bcrypt.hash(user.password, 12);
 }
@@ -195,8 +205,47 @@ exports.deleteUser = (id, res) => {
     })
 }
 
+exports.checkAuth = (data, res) => {
+    User.findOne({
+        where:{
+            id: data.user_id,
+            token: data.token
+        }
+    }).then((user) => {
+        res.json(true)
+    }).catch((e) => {
+        res.json(false)
+    })
+}
+
 exports.login = (data, res) => {
-    console.log(data)
+    User.findOne({
+        where:{
+            email: data.email
+        }
+    }).then((user) => {
+        bcrypt.compare(data.password, user.password, function(err, response) {
+            if (err){
+                res.json({ message: 'E-mail ou senha incorretos' })
+            }
+            if (response){
+                bcrypt.hash(user.email, 12).then(function(hash) {
+                    user.update({token: hash})
+                    res.json({
+                        message: 'Login efetuado com sucesso',
+                        token: hash,
+                        user_id: user.id
+                    })
+                }).catch((e) => {
+                    res.json({ message: 'E-mail ou senha incorretos' })
+                })
+            } else {
+                return res.json({ message: 'E-mail ou senha incorretos' })
+            }
+        });
+    }).catch((e) => {
+        res.json({ message: 'E-mail ou senha incorretos' })
+    })
 }
 
 //Category
@@ -325,6 +374,16 @@ exports.listPost = (data, page, res) => {
         if(data.data == 'Em alta'){
             Post.findAll({
                 offset: ((page-1) * pageSize),
+                limit: pageSize,
+                attributes:[
+                    "id",
+                    "title",
+                    "path",
+                    "category_id",
+                    "user_id",
+                    "createdAt",
+                    [sequelize.literal('(SELECT COUNT(*) as positivesCount FROM reactions WHERE reactions.post_id = posts.id AND positive = 1) - (SELECT COUNT(*) as negativesCount FROM reactions WHERE reactions.post_id = posts.id AND positive = 0)'), 'ReactionCount']
+                ],
                 include: [
                     {  
                         model: Category, 
@@ -333,14 +392,14 @@ exports.listPost = (data, page, res) => {
                     {  
                         model: Reaction, 
                         as: 'positives',
-                        attributes: ['id'],
+                        attributes: ['id','user_id'],
                         where: { positive: 1 },
                         required: false
                     },
                     {  
                         model: Reaction, 
                         as: 'negatives',
-                        attributes: ['id'],
+                        attributes: ['id','user_id'],
                         where: { positive: 0 },
                         required: false
                     },
@@ -349,25 +408,13 @@ exports.listPost = (data, page, res) => {
                         as: 'comments',
                         required:false
                     },
-                    {
-                        model: Reaction,
-                        as: 'reaction',
-                        where: { positive:1 },
-                        group: ['post_id'],
-                        attributes: [ [Sequelize.fn("COUNT", Sequelize.col("id") ), "ReactionCount"]],
-                        separate:true,
-                       // order: [[sequelize.literal('ReactionCount'), 'DESC'] ]
-                    }
-                 ],
-                /**
-                * ordenar pela quantidade de curtida das ultimas 24h
-                * ordenar posts pela maior quantidade de reacao positiva 
-                * SELECT id, (SELECT Count(id)  FROM   reactions WHERE  reactions.post_id = posts.id GROUP  BY post_id) 
-                * AS Count FROM posts GROUP  BY id
-                * 
-                */
+                ],
+                order: [
+                    [sequelize.literal('ReactionCount'), 'DESC'],
+                    ['createdAt', 'DESC']
+                ]
             }).then((posts) => {
-               res.json({message:posts,})
+               res.json({data:posts, page})
             }).catch((e) => {
                 res.json({ message: e })
             });
@@ -392,14 +439,14 @@ exports.listPost = (data, page, res) => {
                     {  
                         model: Reaction, 
                         as: 'positives',
-                        attributes: ['id'],
+                        attributes: ['id','user_id'],
                         where: { positive: 1 },
                         required: false
                     },
                     {  
                         model: Reaction, 
                         as: 'negatives',
-                        attributes: ['id'],
+                        attributes: ['id','user_id'],
                         where: { positive: 0 },
                         required: false
                     },
@@ -421,6 +468,7 @@ exports.listPost = (data, page, res) => {
                 Post.findAll({
                     offset: ((page-1) * pageSize),
                     where: [{ category_id: category.id}],
+                    order: [['createdAt', 'DESC']],
                     include: [
                         {  
                             model: Category, 
@@ -429,7 +477,7 @@ exports.listPost = (data, page, res) => {
                         {  
                             model: Reaction, 
                             as: 'positives',
-                            attributes: ['id'],
+                            attributes: ['id','user_id'],
                             where: { positive: 1 },
                             required:false
                            
@@ -437,7 +485,7 @@ exports.listPost = (data, page, res) => {
                         {  
                             model: Reaction, 
                             as: 'negatives',
-                            attributes: ['id'],
+                            attributes: ['id','user_id'],
                             where: { positive: 0 },
                             required: false
                         },
@@ -476,7 +524,7 @@ exports.search = (data, res) => {
             {  
                 model: Reaction, 
                 as: 'positives',
-                attributes: ['id'],
+                attributes: ['id','user_id'],
                 where: { positive: 1 },
                 required:false
                
@@ -484,7 +532,7 @@ exports.search = (data, res) => {
             {  
                 model: Reaction, 
                 as: 'negatives',
-                attributes: ['id'],
+                attributes: ['id','user_id'],
                 where: { positive: 0 },
                 required: false
             },
@@ -530,9 +578,10 @@ exports.makeReaction = (data, res) => {
             res.json({ message: 'Erro no servidor' })
         })
     }else{
-        Reaction.findOne({
-            user_id: data.user_id,
-            post_id: data.post_id,
+        Reaction.findOne({where:{
+                user_id: data.user_id,
+                post_id: data.post_id,
+            }
         }).then((obj) => {
             if (obj)
                 obj.update(data)

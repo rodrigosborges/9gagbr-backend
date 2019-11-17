@@ -42,7 +42,8 @@ router.post('/', upload.single('path'),(req, res, next) => {
     const v = new Validator(req.body, {
         title: 'required|minLength:3|maxLength:50',
         path: 'required',
-        category_id: 'required'
+        category_id: 'required',
+        user_id: 'required',
       })  
       v.check().then((matched) => {
         if (!matched || !['jpg', 'jpeg', 'png', 'webm', 'mp4', 'gif'].includes(ext)) 
