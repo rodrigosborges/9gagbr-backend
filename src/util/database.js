@@ -117,6 +117,20 @@ Reaction.belongsTo(User, {
     constraints: false
 })
 
+Reaction.belongsTo(Post, {
+    as: 'post',
+    foreignKey: 'post_id',
+    constraints: false,
+    onDelete: 'CASCADE',
+})
+
+Comment.belongsTo(Post, {
+    as: 'post',
+    foreignKey: 'post_id',
+    constraints: false,
+    onDelete: 'CASCADE',
+})
+
 Comment.belongsTo(User, {
     as: 'user',
     foreignKey: 'user_id',
@@ -132,25 +146,29 @@ User.hasMany(Comment, {
 Post.hasMany(Comment, {
     as: 'comments',
     foreignKey: 'post_id',
-    constraints: false
+    constraints: false,
+    onDelete: 'CASCADE',
 })
 
 Post.hasMany(Reaction, {
     as: 'positives',
     foreignKey: 'post_id',
-    constraints: false
+    constraints: false,
+    onDelete: 'CASCADE',
 })
 
 Post.hasMany(Reaction, {
     as: 'negatives',
     foreignKey: 'post_id',
-    constraints: false
+    constraints: false,
+    onDelete: 'CASCADE',
 })
 
 Post.hasMany(Reaction, {
     as: 'reaction',
     foreignKey: 'post_id',
-    constraints: false
+    constraints: false,
+    onDelete: 'CASCADE',
 })
 
 Post.belongsTo(Category, {
@@ -288,7 +306,7 @@ exports.deleteCategory = (id, res) => {
 //Post
 exports.insertPost = (data, res) => {
     Post.create(data).then(() => {
-        res.json({ message: 'Post cadastrado com sucesso' })
+        res.json({ message: 'Publicação cadastrada com sucesso' })
     }).catch((e) => {
         res.json({ message: 'Erro no servidor' })
     })
@@ -297,11 +315,52 @@ exports.insertPost = (data, res) => {
 exports.updatePost = (id, data, res) => {
     Post.findByPk(id).then(() => {
         Post.update(data, {where: { id: id }}).then(() => {
-            res.json({ message: 'Post atualizado com sucesso' })
+            res.json({ message: 'Publicação atualizada com sucesso' })
         }).catch((e) => {
             res.json({ message:'Erro no servidor' })
         })
     })
+}
+
+exports.findPostUser = (data, res) => {
+    Post.findAll({ 
+        where:  { user_id: data.user_id },  
+        include: [
+            {  
+                model: Category, 
+                as: 'category'
+            },
+            {  
+                model: Reaction, 
+                as: 'positives',
+                attributes: ['id','user_id'],
+                where: { positive: 1 },
+                required:false
+                
+            },
+            {  
+                model: Reaction, 
+                as: 'negatives',
+                attributes: ['id','user_id'],
+                where: { positive: 0 },
+                required: false
+            },
+            {  
+                model: Comment, 
+                as: 'comments',
+                required:false
+            },
+
+            ],
+            order: [
+                ['createdAt','DESC']
+            ]
+    }).then((posts) => {
+        res.json({data: posts})
+    }).catch((e) => {
+        res.json({ message: 'Erro no servidor' })
+    })
+    
 }
 
 exports.findPost = (id, res) => {
@@ -544,7 +603,7 @@ exports.search = (data, res) => {
 
          ],
          order: [
-             ['id','DESC']
+             ['createdAt','DESC']
          ]
     }).then((posts) => {
         res.json({data: posts})
@@ -556,8 +615,10 @@ exports.search = (data, res) => {
 
 exports.deletePost = (id, res) => {
     Post.findByPk(id).then(() => {
+        Reaction.destroy({where: {post_id: id}})
+        Comment.destroy({where: {post_id: id}})
         Post.destroy( {where: { id: id }}).then(() => {
-            res.json({ message: 'Post deletado com sucesso' })
+            res.json({ message: 'Publicação deletada com sucesso' })
         }).catch((e) => {
             res.json({ message:'Erro no servidor' })
         })
