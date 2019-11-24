@@ -571,9 +571,11 @@ exports.listPost = (data, page, res) => {
  * Funcao de busca: nome do post
 */
 
-exports.search = (data, res) => {
+exports.search = (data, page, res) => {
+    let pageSize = 5
     const Op = Sequelize.Op
     Post.findAll({ 
+        offset: ((page-1) * pageSize),
         where:  { title: { [Op.like]:'%' + data.search + '%' } },  
         include: [
             {  

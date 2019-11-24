@@ -18,7 +18,11 @@ router.get('/:data?', (req, res, next) => {
 })
 
 router.post('/search', (req, res, next) => {
-    search(req.body, res);
+    if(req.query.page === undefined || req.query.page == 0)
+        page = 1
+     else 
+        page = +req.query.page; 
+    search(req.body, page, res);
 })
 
 router.get('/find/:id', (req, res, next) => {
