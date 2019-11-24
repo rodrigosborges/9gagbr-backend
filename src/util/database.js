@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 // });
 
 //mysql
-const sequelize = new Sequelize('mysql://b2f5bf92fe9612:2eed5e68@us-cdbr-iron-east-05.cleardb.net/heroku_ffb8da4bcf92c76');
+const sequelize = new Sequelize(process.env.CLEARDB_DATABASE_URL ? process.env.CLEARDB_DATABASE_URL : 'mysql://root:@localhost:3306/9gagbr');
 
 const User = sequelize.define('users', 
     {
