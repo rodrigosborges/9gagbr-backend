@@ -1,16 +1,7 @@
 const Sequelize = require('sequelize');
 const bcrypt = require('bcrypt');
-//sqlite
-// const sequelize = new Sequelize({
-//     dialect: 'sqlite',
-//     storage: './src/util/database.sqlite3',
-//     dialectOptions: {
-//         "timezone": "Europe/Warsaw"
-//     }
-// });
 
-//mysql
-const sequelize = new Sequelize('mysql://root:@localhost:3306/9gagbr');
+const sequelize = new Sequelize(process.env.DBCONNECTION || 'mysql://root:@localhost:3306/9gagbr');
 
 const User = sequelize.define('users', 
     {
