@@ -45,7 +45,7 @@ var upload = multer({ storage:storage })
 
 router.post('/', upload.single('path'),(req, res, next) => {   
     var data = req.body
-    var ext = req.file.originalname.split('.')[1]
+    var ext = req.file.originalname.split('.').pop()
     data['path'] = data.title+'-'+Date.now()+'.'+ext
     const v = new Validator(req.body, {
         title: 'required|minLength:3|maxLength:50',

@@ -26,7 +26,7 @@ var upload = multer({ storage:storage })
 
 router.post('/', upload.single('path'),(req, res, next) => {    
     var data = req.body
-    data['path'] = data.name+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]
+    data['path'] = data.name+'-'+Date.now()+'.'+req.file.originalname.split('.').pop()
   
     const v = new Validator(req.body, {
         name: 'required',
@@ -48,7 +48,7 @@ router.put('/:id', upload.single('path'),(req, res, next) => {
         return next()
 
     var data = req.body
-    data['path'] = data.name+'-'+Date.now()+'.'+req.file.originalname.split('.')[1]
+    data['path'] = data.name+'-'+Date.now()+'.'+req.file.originalname.split('.').pop()
      const v = new Validator(req.body, {
         name: 'required',
         path: 'required'
