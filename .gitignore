@@ -2,3 +2,4 @@ node_modules/*
 public/storage/post/*
 public/storage/category/*
 src/util/database.sqlite3
+.env

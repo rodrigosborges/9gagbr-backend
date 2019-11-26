@@ -10,6 +10,8 @@ const commentRouter = require('./src/routes/comment')
 const path = require('path')
 var cors = require('cors');
 
+require('dotenv').config();
+
 var corsOptions = {
     origin: '*',
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
