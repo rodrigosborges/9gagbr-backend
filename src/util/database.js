@@ -277,7 +277,11 @@ exports.updateCategory = (id, data, res) => {
 }
 
 exports.listCategory = (res) => {
-    Category.findAll().then((categories) => {
+    Category.findAll({
+        order: [
+            ['name','ASC']
+        ]
+    }).then((categories) => {
         res.json({data:categories});
       }).catch((e) => {
         res.json({ message: 'Erro no servidor' })
